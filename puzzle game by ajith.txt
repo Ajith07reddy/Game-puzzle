@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            border: 2px solid #333;
+            cursor: pointer;
+        }
+    </style>
+    <title>Puzzle Game</title>
+</head>
+<body>
+    <div id="puzzle-container"></div>
+
+    <script>
+        const puzzleContainer = document.getElementById('puzzle-container');
+
+        function createPuzzle() {
+            const numbers = Array.from({ length: 8 }, (_, i) => i + 1);
+            numbers.push(null); // Representing the empty space
+
+            // Shuffle the array to randomize the puzzle
+            numbers.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < numbers.length; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                piece.innerText = numbers[i] !== null ? numbers[i] : '';
+                piece.addEventListener('click', () => movePiece(i));
+
+                puzzleContainer.appendChild(piece);
+            }
+        }
+
+        function movePiece(index) {
+            const pieces = Array.from(document.getElementsByClassName('puzzle-piece'));
+            const emptyIndex = pieces.findIndex(piece => piece.innerText === '');
+
+            if (isValidMove(index, emptyIndex)) {
+                // Swap the pieces
+                const temp = pieces[index].innerText;
+                pieces[index].innerText = pieces[emptyIndex].innerText;
+                pieces[emptyIndex].innerText = temp;
+            }
+
+            // Check if the puzzle is solved
+            if (isPuzzleSolved()) {
+                alert('Congratulations! Puzzle solved!');
+                createPuzzle(); // Restart the game
+            }
+        }
+
+        function isValidMove(index, emptyIndex) {
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+
+            const emptyRow = Math.floor(emptyIndex / 3);
+            const emptyCol = emptyIndex % 3;
+
+            // Check if the selected piece is adjacent to the empty space
+            return (
+                (Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
+                (row === emptyRow && Math.abs(col - emptyCol) === 1)
+            );
+        }
+
+        function isPuzzleSolved() {
+            const pieces = Array.from(document.getElementsByClassName('puzzle-piece'));
+            for (let i = 0; i < pieces.length - 1; i++) {
+                if (parseInt(pieces[i].innerText) !== i + 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        window.onload = function () {
+            createPuzzle();
+        };
+    </script>
+</body>
+</html>
